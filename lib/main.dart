@@ -6,60 +6,95 @@ import 'dart:convert' show jsonDecode;
 import 'package:http/http.dart' as http;
 
 // App specific variables
-final googleClientId = 'XXXXXXXXXXXX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com';
-final callbackUrlScheme = 'com.googleusercontent.apps.XXXXXXXXXXXX-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+final googleClientId =
+    '987317794515341414';
+final callbackUrlScheme =
+    'http://localhost:3000/auth';
 
 // Construct the url
-final url = Uri.https('accounts.google.com', '/o/oauth2/v2/auth', {
+final url = Uri.https('www.discord.com', '/oauth2/authorize', {
   'response_type': 'code',
   'client_id': googleClientId,
-  'redirect_uri': '$callbackUrlScheme:/',
+  'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
+  'redirect_uri': callbackUrlScheme,
   'scope': 'email',
 });
 
 // Present the dialog to the user
-  Future<String> getGoogleAuthCode() async {
-  final result = await FlutterWebAuth2.authenticate(
-    url: url.toString(),
-    callbackUrlScheme: callbackUrlScheme,
-  );
+Future<String?> getGoogleAuthCode() async {
+  try {
+    final result = await FlutterWebAuth2.authenticate(
+      url: url.toString(),
+      callbackUrlScheme: callbackUrlScheme,
+    );
 
-  // Extract the code from the response URL
-  final code = await FlutterWebAuth2.authenticate(url: url.toString(), callbackUrlScheme: callbackUrlScheme);
-  return code;
-  return Future.value(code);
+    // Extract the code from the response URL
+    final code = await FlutterWebAuth2.authenticate(
+        url: url.toString(), callbackUrlScheme: callbackUrlScheme);
 
-}
-
-String casteo= getGoogleAuthCode() as String;
+    //String casteo = getGoogleAuthCode().toString();
 //final result = await FlutterWebAuth2.authenticate(url: url.toString(), callbackUrlScheme: callbackUrlScheme);
 
 // Extract code from resulting url
-final result1 = Uri.parse(casteo).queryParameters['code'];
-print(result1) {
-  // TODO: implement print
-  throw UnimplementedError();
+    final result1 = Uri.parse(code).queryParameters['code'];
+    print(result1) {
+      // TODO: implement print
+      throw UnimplementedError();
+    }
+
+    if (result1 != null) {
+      // Exchange the code for an access token
+      final response = await http.post(
+        Uri.https('discord.com', '/api/v10'),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: {
+          'code': result1,
+          'client_id': googleClientId,
+          'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
+          'redirect_uri': callbackUrlScheme,
+          'grant_type': 'authorization_code',
+        },
+
+      );
+
+      // Extract the access token from the response
+      final data = jsonDecode(response.body);
+      print(data);
+      final accessToken = data['access_token'];
+      print(accessToken);
+
+      // Use the access token to access the Google API
+      final userInfoResponse = await http.get(
+        Uri.https('www.googleapis.com', '/oauth2/v2/userinfo'),
+        headers: {
+          'Authorization': 'Bearer $accessToken',
+        },
+      );
+      return userInfoResponse.body.toString();
+
+      // Extract the required data
+      final userInfo = jsonDecode(userInfoResponse.body);
+      final email = userInfo['email'];
+      final name = userInfo['name'];
+      final picture = userInfo['picture'];
+
+      // Do something with the data
+      print(email);
+      print(name);
+      print(picture);
+    }
+  } catch (e) {
+    print(e);
+  }
 }
 
-Future<String> finalresponse()async {
-  final response = await http.post(
-    Uri.parse('https://www.googleapis.com/oauth2/v4/token'),
-    body: {
-      'code': result1,
-      'client_id': googleClientId,
-      'redirect_uri': '$callbackUrlScheme:/',
-      'grant_type': 'authorization_code',
-    },
-  );
-
-  // Extract the access token from the response
-  final body = jsonDecode(response.body);
-  final accessToken = jsonDecode(response.body)['access_token'] as String;
-  return accessToken;
+void main() {
+  runApp(miercoles());
 }
 
-
-class  miercoles extends StatelessWidget {
+class miercoles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -73,44 +108,11 @@ class  miercoles extends StatelessWidget {
             onPressed: () async {
               // Get the auth code
               final code = await getGoogleAuthCode();
-
-              // Exchange the code for an access token
-              final accessToken = await exchangeCodeForToken(code);
-
-              // Use the access token to access the Google API
-              final response = await http.get(
-                Uri.parse('https://www.googleapis.com/userinfo/v2/me'),
-                headers: {
-                  'Authorization': 'Bearer $accessToken',
-                },
-              );
-
-              // Show the user's email address
-              final body = jsonDecode(response.body);
-              final email = body['email'] as String;
-              print(email);
             },
           ),
         ),
       ),
-      );
-  }
-
-  Future<String>exchangeCodeForToken(String code) async {
-    final response = await http.post(
-      Uri.parse('https://www.googleapis.com/oauth2/v4/token'),
-      body: {
-        'code': code,
-        'client_id': googleClientId,
-        'redirect_uri': '$callbackUrlScheme:/',
-        'grant_type': 'authorization_code',
-      },
     );
-
-    // Extract the access token from the response
-    final body = jsonDecode(response.body);
-    final accessToken = jsonDecode(response.body)['access_token'] as String;
-    return accessToken;
   }
-}
 
+}
