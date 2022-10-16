@@ -7,7 +7,7 @@ import 'package:http/http.dart' as http;
 
 // App specific variables
 final googleClientId =
-    '987317794515341414';
+    'id';
 final callbackUrlScheme =
     'http://localhost:3000/auth';
 
@@ -15,7 +15,7 @@ final callbackUrlScheme =
 final url = Uri.https('www.discord.com', '/oauth2/authorize', {
   'response_type': 'code',
   'client_id': googleClientId,
-  'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
+  'secret client':'secret',
   'redirect_uri': callbackUrlScheme,
   'scope': 'email',
 });
@@ -52,7 +52,7 @@ Future<String?> getGoogleAuthCode() async {
         body: {
           'code': result1,
           'client_id': googleClientId,
-          'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
+          'secret client':'secret',
           'redirect_uri': callbackUrlScheme,
           'grant_type': 'authorization_code',
         },
