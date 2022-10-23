@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.webauthmiercoles">
    <application
         android:label="webauthmiercoles"
@@ -13,7 +14,8 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
 
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="Instantiatable">
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
@@ -28,13 +30,14 @@
             </intent-filter>
         </activity>
         <activity
-           android:name="com.linusu.flutter_web_auth_2.CallbackActivity"
-           android:exported="true">
+           android:name="com.linusu.flutter_web_auth.CallbackActivity"
+           android:exported="true"
+            tools:ignore="MissingClass">
            <intent-filter android:label="flutter_web_auth_2">
                <action android:name="android.intent.action.VIEW" />
                <category android:name="android.intent.category.DEFAULT" />
                <category android:name="android.intent.category.BROWSABLE" />
-               <data android:scheme="http" android:host="localhost:3000" />
+                <data android:scheme='com.example.ui://' />
            </intent-filter>
          </activity>
 

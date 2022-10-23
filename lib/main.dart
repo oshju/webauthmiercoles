@@ -6,88 +6,57 @@ import 'dart:convert' show jsonDecode;
 import 'package:http/http.dart' as http;
 
 // App specific variables
-final googleClientId =
-    '987317794515341414';
-final callbackUrlScheme =
-    'http://localhost:3000/auth';
+final googleClientId = '37130';
+final callbackUrlScheme = 'com.example.ui://';
 
 // Construct the url
-final url = Uri.https('www.discord.com', '/oauth2/authorize', {
-  'response_type': 'code',
+final url = Uri.https('bungie.com', '/en/oauth/authorize', {
   'client_id': googleClientId,
-  'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
-  'redirect_uri': callbackUrlScheme,
-  'scope': 'email',
+  'response_type': 'code',
 });
 
 // Present the dialog to the user
 Future<String?> getGoogleAuthCode() async {
-  try {
-    final result = await FlutterWebAuth2.authenticate(
-      url: url.toString(),
-      callbackUrlScheme: callbackUrlScheme,
-    );
+  final result = await FlutterWebAuth2.authenticate(
+    url: url.toString(),
+    callbackUrlScheme: callbackUrlScheme,
+  );
 
-    // Extract the code from the response URL
-    final code = await FlutterWebAuth2.authenticate(
-        url: url.toString(), callbackUrlScheme: callbackUrlScheme);
+  // Extract the code from the response URL
 
-    //String casteo = getGoogleAuthCode().toString();
+  //String casteo = getGoogleAuthCode().toString();
 //final result = await FlutterWebAuth2.authenticate(url: url.toString(), callbackUrlScheme: callbackUrlScheme);
 
 // Extract code from resulting url
-    final result1 = Uri.parse(code).queryParameters['code'];
-    print(result1) {
-      // TODO: implement print
-      throw UnimplementedError();
-    }
-
-    if (result1 != null) {
-      // Exchange the code for an access token
-      final response = await http.post(
-        Uri.https('discord.com', '/api/v10'),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: {
-          'code': result1,
-          'client_id': googleClientId,
-          'secret client':'-fKjVtbYFfeAdBZt_w8XVpmgr8N-UpDY',
-          'redirect_uri': callbackUrlScheme,
-          'grant_type': 'authorization_code',
-        },
-
-      );
-
-      // Extract the access token from the response
-      final data = jsonDecode(response.body);
-      print(data);
-      final accessToken = data['access_token'];
-      print(accessToken);
-
-      // Use the access token to access the Google API
-      final userInfoResponse = await http.get(
-        Uri.https('www.googleapis.com', '/oauth2/v2/userinfo'),
-        headers: {
-          'Authorization': 'Bearer $accessToken',
-        },
-      );
-      return userInfoResponse.body.toString();
-
-      // Extract the required data
-      final userInfo = jsonDecode(userInfoResponse.body);
-      final email = userInfo['email'];
-      final name = userInfo['name'];
-      final picture = userInfo['picture'];
-
-      // Do something with the data
-      print(email);
-      print(name);
-      print(picture);
-    }
-  } catch (e) {
-    print(e);
+  final result1 = Uri.parse(result).queryParameters['code'];
+  print(result) {
+    // TODO: implement print
+    throw UnimplementedError();
   }
+
+  var headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'code': '$result1',
+  };
+  var request = http.Request(
+      'POST', Uri.parse('https://www.bungie.net/platform/app/oauth/token'));
+
+  request.headers.addAll(headers);
+
+  http.StreamedResponse response = await request.send();
+
+  if (response.statusCode == 200) {
+    print(await response.stream.bytesToString());
+  } else {
+    print(response.reasonPhrase);
+  }
+
+  // Extract the access token from the response
+  //final data = jsonDecode(response.body);
+
+  // Use the access token to access the Google API
+
+  // Do something with the data
 }
 
 void main() {
@@ -107,12 +76,12 @@ class miercoles extends StatelessWidget {
             child: Text('Sign in with Google'),
             onPressed: () async {
               // Get the auth code
-              final code = await getGoogleAuthCode();
+
+              getGoogleAuthCode();
             },
           ),
         ),
       ),
     );
   }
-
 }

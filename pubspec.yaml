@@ -28,6 +28,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   flutter_web_auth_2: ^1.1.2
+  flutter_web_auth: ^0.2.0
   http: ^0.13.3
   flutter:
     sdk: flutter
